@@ -1,19 +1,30 @@
-import { HttpException, Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Cat } from './cats.schema';
+import _ from 'lodash';
+
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
+
+import { Cat } from './cats.entity';
+import { ReadOnlyCatDto } from './dto/cat.dto';
 import { CatRequestDto } from './dto/cats.request.dto';
 
 @Injectable()
 export class CatsRepository {
-  constructor(@InjectModel(Cat.name) private readonly catModel: Model<Cat>) {}
+  constructor(@InjectRepository(Cat) private readonly catsRepository: Repository<Cat>, private dataSource: DataSource) {}
 
-  async existsByEmail(email: string): Promise<boolean> {
-    const result = await this.catModel.exists({ email });
+  async existByEmail(email: string): Promise<boolean> {
+    const result = await this.catsRepository.findOneBy({ email });
     return !!result;
   }
 
-  async create(cat: CatRequestDto): Promise<Cat> {
-    return await this.catModel.create(cat);
+  async createAndSave({ email, name, password }: CatRequestDto): Promise<ReadOnlyCatDto> {
+    const created = this.catsRepository.create({ email, name, password });
+    await this.catsRepository.insert(created);
+    return _.pick(created, ['id', 'name', 'email']);
+  }
+
+  async findCatByEmail(email: string): Promise<Cat | null> {
+    const result = await this.catsRepository.findOneBy({ email });
+    return result;
   }
 }
