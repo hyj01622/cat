@@ -27,4 +27,9 @@ export class CatsRepository {
     const result = await this.catsRepository.findOneBy({ email });
     return result;
   }
+
+  async findCatByIdWithoutPassword(catId: string): Promise<Cat | null> {
+    const cat = await this.catsRepository.findOneBy({ id: parseInt(catId) });
+    return _.omit(cat, ['password']);
+  }
 }

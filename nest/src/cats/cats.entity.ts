@@ -4,6 +4,10 @@ import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Cat extends BaseEntity {
+  @ApiProperty({
+    example: 1,
+    description: 'cat id',
+  })
   @PrimaryGeneratedColumn('increment')
   id: number;
 
@@ -35,7 +39,7 @@ export class Cat extends BaseEntity {
   @Column()
   @IsString()
   @IsNotEmpty()
-  password: string;
+  password?: string;
 
   @ApiProperty({
     example: '2sbvl#dob-0)g9@#lodvjmsodv@#dov',
@@ -44,7 +48,7 @@ export class Cat extends BaseEntity {
   })
   @Column({ default: null })
   @IsString()
-  imgUrl: string;
+  imgUrl?: string;
 
   readonly readOnlyData: { id: string; email: string; name: string };
 }
